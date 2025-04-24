@@ -79,4 +79,120 @@ index=*  (eventtype=wineventlog_security OR eventtype=syslog)  (failure OR faile
 *   **Alerting:** Once you have a query that accurately identifies failed login attempts, create an alert in Splunk to notify you when the threshold is exceeded.
 
 Before deploying any of these queries, test them on a small sample of your data to ensure they are working correctly and not generating false positives.  Adapt the queries to your specific environment and logging configurations.
+
+**Splunk CIM Authentication Schema:**
+
+The Common Information Model (CIM) normalizes field names across different data sources to enable consistent searching:
+
+*   **Key CIM Authentication Fields:**
+    * `action`: Values like "success", "failure" for login attempts
+    * `app`: The application being accessed
+    * `src`: Source address of the authentication attempt
+    * `dest`: Destination address where authentication occurred
+    * `user`: Username attempting authentication
+    * `src_user`: Source username for the connection
+    * `dest_user`: Destination username being accessed
+    * `signature`: Description of the authentication event
+    * `status`: Status of the authentication attempt (success/failure)
+    * `duration`: Duration of the session
+
+*   **CIM-Based Authentication Monitoring Examples:**
+
+```splunk
+| tstats count from datamodel=Authentication where Authentication.action=failure by Authentication.src Authentication.user Authentication.app
+| rename Authentication.src as Source Authentication.user as Username Authentication.app as Application
+| search count > 10
+```
+
+```splunk
+| tstats count from datamodel=Authentication where Authentication.action=failure by Authentication.src Authentication.user Authentication.app Authentication.dest
+| where count > threshold
+| `get_asset_info(Authentication.dest)`
+| `risk_score_authentication(Authentication.src, Authentication.user)`
+```
+
+**Okta Schema and Examples:**
+
+*   **Key Okta Fields:**
+    * `actor.displayName`: Username attempting authentication
+    * `actor.alternateId`: Email of the user
+    * `client.ipAddress`: Source IP address
+    * `client.userAgent.rawUserAgent`: Browser/client making the request
+    * `client.geographicalContext`: Location information
+    * `outcome.result`: Success/failure status (SUCCESS, FAILURE, etc.)
+    * `outcome.reason`: Reason for failure (INVALID_CREDENTIALS, etc.)
+    * `eventType`: Type of authentication event (user.authentication.*)
+    * `debugContext.debugData.requestUri`: URI being accessed
+    * `debugContext.debugData.authenticationContext`: Authentication context details
+
+*   **Okta-Specific Examples:**
+
+```splunk
+index=okta sourcetype=okta:events eventType="user.authentication.*" outcome.result="FAILURE"
+| stats count by actor.alternateId, client.ipAddress, outcome.reason
+| where count > 10
+```
+
+```splunk
+index=okta sourcetype=okta:events eventType="user.authentication.*"
+| stats count values(client.geographicalContext.country) as countries values(client.geographicalContext.city) as cities by actor.alternateId
+| where mvcount(countries) > 1 OR mvcount(cities) > 3
+```
+
+*   **Okta with CIM Integration:**
+
+```splunk
+index=okta sourcetype=okta:events eventType="user.authentication.*"
+| eval action=if(outcome.result=="SUCCESS","success","failure")
+| eval user=actor.alternateId
+| eval src=client.ipAddress
+| eval app="Okta"
+| eval signature=eventType
+| eval status=outcome.result
+| table _time user src action app signature status
+| where action="failure"
+| stats count by user, src
+| where count > 5
+```
+
+*   **Combined Authentication Monitoring (Windows, Linux, Okta):**
+
+```splunk
+(index=wineventlog EventCode=4625) OR 
+(index=linux_logs sourcetype=syslog "Failed password for") OR
+(index=okta sourcetype=okta:events outcome.result="FAILURE")
+| eval user=case(
+    sourcetype=="okta:events", actor.alternateId,
+    sourcetype=="WinEventLog:Security", Account_Name,
+    sourcetype=="syslog", field("user"),
+    1==1, "unknown")
+| eval src=case(
+    sourcetype=="okta:events", client.ipAddress,
+    sourcetype=="WinEventLog:Security", Source_Network_Address,
+    sourcetype=="syslog", field("src_ip"),
+    1==1, "unknown")
+| stats count by user, src, sourcetype
+| where count > threshold
+```
+
+*   **Multi-Factor Risk Scoring:**
+
+```splunk
+| tstats count from datamodel=Authentication where Authentication.action=failure by Authentication.src Authentication.user
+| join Authentication.src type=left [
+    | tstats count as firewall_blocks from datamodel=Network_Traffic where Network_Traffic.action=blocked by Network_Traffic.src
+]
+| join Authentication.user type=left [
+    | tstats count as previous_incidents from datamodel=Risk where Risk.risk_object_type=user by Risk.risk_object
+    | rename Risk.risk_object as Authentication.user
+]
+| eval risk_score = case(
+    count > 20, 50,
+    count > 10, 30,
+    count > 5, 10,
+    1=1, 0)
+| eval risk_score = risk_score + if(firewall_blocks > 0, 20, 0)
+| eval risk_score = risk_score + if(previous_incidents > 0, 30, 0)
+| where risk_score > 30
+```
 """
