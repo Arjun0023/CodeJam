@@ -1,0 +1,29 @@
+version: '3'
+
+services:
+  backend:
+    build: ./backend
+    container_name: codejam-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    environment:
+      - ENV_FILE=.env
+    restart: always
+    networks:
+      - codejam-network
+
+  frontend:
+    build: ./frontend
+    container_name: codejam-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - codejam-network
+
+networks:
+  codejam-network:
+    driver: bridge
