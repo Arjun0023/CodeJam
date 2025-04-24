@@ -154,33 +154,3 @@ To run this project locally, you need to set up both the backend and the fronten
 *   Add support for saving and managing past queries.
 *   Implement user authentication.
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-*(Make sure you include a `LICENSE` file in the root of your repository - `CodeJam/LICENSE`)*
-
-## 🙏 Acknowledgements
-
-*   This project was created for [Name of CodeJam Event or Organizer, optional].
-*   Powered by Google Gemini Flash 2.0.
-*   Thanks to the Splunk community for their valuable documentation and insights.
-*   Special thanks to the organizers and participants of the CodeJam event.
-```
-
-**Key Changes:**
-
-1.  **Project Structure Section:** Added a new section with the tree structure and a brief explanation.
-2.  **Installation Steps Updated:** Modified the `cd` commands to reflect starting from the `CodeJam` root (`cd CodeJam`, then `cd frontend`, `cd ../backend`).
-3.  **Backend Setup Refinement:** Explicitly mentioned creating and activating the virtual environment and creating the `.env` file within the `backend` directory.
-4.  **Run Commands Updated:** Updated the commands in the "Run the Application" section to show navigating into the respective directories from the terminal context.
-5.  **High-Level Workflow Section:** Added a new section with a header and the markdown image link `![High-Level Workflow Diagram](docs/images/workflow.png)`.
-6.  **Image Placement Note:** Added a comment `*(**Note:** Please place the actual workflow image file in the `docs/images/` directory as referenced above)*` to guide the user on where to put the image file.
-7.  **License File Location Note:** Added a note about the `LICENSE` file being in the root (`CodeJam/LICENSE`).
-
-Remember to:
-*   Replace `<repository_url>`.
-*   Replace `[Name of CodeJam Event or Organizer, optional]`.
-*   Ensure you have a `requirements.txt` in your `backend` folder.
-*   Create the `.env` file in the `backend` folder and add your `GEMINI_API_KEY`.
-*   Create the `LICENSE` file in the `CodeJam` root folder.
-*   Create the `docs/images` directory within the `CodeJam` root and place your `workflow.png` file inside it.
