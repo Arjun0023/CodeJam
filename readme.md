@@ -16,7 +16,7 @@ This project is a web application developed during a CodeJam event. Its primary 
 
 ## **Project Structure** 🗂️
 
-```
+```markdown
 CodeJam/
 ├── backend/             # FastAPI application
 │   ├── requirements.txt # Python dependencies
