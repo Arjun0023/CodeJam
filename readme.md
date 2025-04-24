@@ -55,7 +55,7 @@ The application follows a standard client-server architecture:
 
 This diagram illustrates the main flow of a user query through the application:
 
-![High-Level Workflow Diagram](docs/images/CodeJam.png)
+![High-Level Workflow Diagram](./docs/images/Codejam.png)
 
 *(**Note:** Please place the actual workflow image file in the `docs/images/` directory as referenced above)*
 
