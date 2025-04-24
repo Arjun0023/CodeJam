@@ -14,9 +14,7 @@ This project is a web application developed during a CodeJam event. Its primary 
 *   **Intuitive Web Interface:** A simple and clean user interface to input your queries and view the results.
 *   **Intelligent Backend:** Utilizes Google Gemini Flash 2.0 combined with RAG (Retrieval Augmented Generation) and Few-Shot Learning techniques for accurate and relevant query generation.
 
-## 📁 Project Structure
-
-The project is organized into two main directories, `frontend` and `backend`, within a root `CodeJam` directory:
+## **Project Structure** 🗂️
 
 ```
 CodeJam/
