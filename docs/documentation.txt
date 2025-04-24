@@ -1,0 +1,23 @@
+SPL Query Assistant API Documentation
+This documentation describes the SPL Query Assistant API, a FastAPI application that translates natural language questions into Splunk Search Processing Language (SPL) queries using the Gemini 2.0 Flash large language model.
+Introduction
+
+The SPL Query Assistant API simplifies the process of interacting with Splunk by allowing users to ask questions in plain English instead of writing complex SPL queries. It leverages the power of Google's Gemini model to generate accurate and relevant Splunk queries along with detailed explanations.
+The choice of the underlying large language model is critical for the API's performance, accuracy, and ability to handle complex requests. We specifically chose Google's Gemini 2.0 Flash model for two primary reasons:
+Extensive Context Window: Gemini 2.0 Flash boasts a significantly larger token context limit compared to many other models. This is crucial for our implementation because the API relies heavily on in-context learning. We provide the model with a detailed system prompt, but most importantly, a comprehensive FEW_SHOT_CONTEXT (as seen in the context/context.py file) that includes a complex example query, its detailed explanation, and numerous alternative/refined scenarios. A large context window ensures that the model can process all of this valuable guidance and the user's query simultaneously within a single API call. This allows the model to generate higher-quality, more contextually relevant outputs guided by the provided examples, without needing complex multi-turn interactions just to load the necessary information. It enables a richer set of instructions and examples to be consistently available to the model for every query.
+Optimized for Speed: As the 'Flash' moniker implies, this model variant is specifically engineered for high-speed inference at a competitive cost. For an API designed to be consumed programmatically or power interactive user interfaces, responsiveness is paramount. Choosing the fastest available model minimizes latency, ensuring that users receive their generated SPL queries and summaries quickly. This speed is essential for providing a smooth user experience and for supporting potentially high-volume API usage, making the assistant feel responsive and efficient.
+By combining the large context window for better in-context learning and the high speed for low latency, Gemini 2.0 Flash enables the API to be both effective and efficient in translating natural language into actionable Splunk queries and helpful explanations.
+Features
+
+Natural Language to SPL Conversion: Converts user-provided text questions into executable Splunk queries.
+Detailed Query Explanation: Provides a comprehensive summary of the generated SPL query, explaining each part and offering customization suggestions.
+Fast & Efficient: Uses the Gemini 2.0 Flash model, optimized for speed, for quick response times.
+Contextual Learning: Incorporates few-shot learning examples and extensive in-context data (leveraging the large context window) to improve query generation accuracy and relevance.
+Structured Output: Returns responses in a consistent JSON format, making it easy to parse and integrate.
+CORS Enabled: Configured to allow requests from any origin (*) for flexible integration (can be restricted if needed).
+Technology Stack
+Web Framework: FastAPI
+Language Model: Google Gemini 2.0 Flash (gemini-2.0-flash) - Chosen for its large context window and speed.
+Programming Language: Python
+LLM Techniques: Few-Shot Learning (via extensive in-context examples), Contextual Learning / In-Context Prompting (facilitated by large context window)
+API Client: google-generativeai Python library
